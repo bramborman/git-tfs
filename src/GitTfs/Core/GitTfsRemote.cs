@@ -773,7 +773,9 @@ namespace GitTfs.Core
 
         private void quickFetch(ITfsChangeset changeset)
         {
-            var log = CopyTree(MaxCommitHash, changeset);
+            var parentSha = MaxCommitHash;
+            parentSha ??= CommitTheGitIgnoreFile(_remoteOptions.GitIgnorePath);
+            var log = CopyTree(parentSha, changeset);
             UpdateTfsHead(Commit(log), changeset.Summary.ChangesetId);
             DoGcIfNeeded();
         }
