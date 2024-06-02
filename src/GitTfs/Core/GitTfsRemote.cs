@@ -307,7 +307,6 @@ namespace GitTfs.Core
             public bool IsSuccess { get; set; }
             public int LastFetchedChangesetId { get; set; }
             public int NewChangesetCount { get; set; }
-            public string ParentBranchTfsPath { get; set; }
             public bool IsProcessingRenameChangeset { get; set; }
             public string LastParentCommitBeforeRename { get; set; }
         }
@@ -602,16 +601,17 @@ namespace GitTfs.Core
             if (tfsRemote != null && string.Compare(tfsRemote.TfsRepositoryPath, TfsRepositoryPath, StringComparison.InvariantCultureIgnoreCase) != 0)
             {
                 Trace.TraceInformation("\tFetching from dependent TFS remote '{0}'...", tfsRemote.Id);
+                IFetchResult fetchResult = null;
                 try
                 {
-                    var fetchResult = ((GitTfsRemote)tfsRemote).FetchWithMerge(-1, stopOnFailMergeCommit, parentChangesetId, renameResult);
+                    fetchResult = ((GitTfsRemote)tfsRemote).FetchWithMerge(-1, stopOnFailMergeCommit, parentChangesetId, renameResult);
                 }
                 finally
                 {
                     Trace.WriteLine("Cleaning...");
                     tfsRemote.CleanupWorkspaceDirectory();
 
-                    if (tfsRemote.Repository.IsBare)
+                    if (fetchResult?.IsSuccess == true && tfsRemote.Repository.IsBare)
                         tfsRemote.Repository.UpdateRef(GitRepository.ShortToLocalName(tfsRemote.Id), tfsRemote.MaxCommitHash);
                 }
                 return Repository.FindCommitHashByChangesetId(parentChangesetId);
@@ -741,7 +741,7 @@ namespace GitTfs.Core
             return remote;
         }
 
-        public void QuickFetch(int changesetId, bool ignoreRestricted, bool printRestrictionHint)
+        public IFetchResult QuickFetch(int changesetId, bool ignoreRestricted, bool printRestrictionHint)
         {
             try
             {
@@ -751,12 +751,23 @@ namespace GitTfs.Core
                 else
                     changeset = Tfs.GetChangeset(changesetId, this);
                 quickFetch(changeset);
+                return new FetchResult()
+                {
+                    IsSuccess = true,
+                    LastFetchedChangesetId = changesetId,
+                    NewChangesetCount = 1,
+                };
             }
             catch (Exception ex)
             {
                 Trace.WriteLine("Quick fetch failed: " + ex.Message);
                 if (!IgnoreException(ex.Message, ignoreRestricted, printRestrictionHint))
                     throw;
+
+                return new FetchResult()
+                {
+                    IsSuccess = false,
+                };
             }
         }
 
