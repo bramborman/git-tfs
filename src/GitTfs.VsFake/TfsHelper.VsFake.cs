@@ -375,6 +375,8 @@ namespace GitTfs.VsFake
 
         public void DeleteShelveset(IWorkspace workspace, string shelvesetName) => throw new NotImplementedException();
 
+        public string GetBranchNameBeforeRename(string path, int changeset) => throw new NotImplementedException();
+
         #endregion
 
         private class FakeVersionControlServer : IVersionControlServer

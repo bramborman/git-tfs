@@ -201,6 +201,28 @@ namespace GitTfs.VsCommon
             });
         }
 
+        public string GetBranchNameBeforeRename(string path, int changeset)
+        {
+            // RecursionType.None sometimes works and sometimes not, so using Full and filtering manually later
+            // The BranchHistoryTreeItem.Relative.IsRequestedItem property seems unreliable so we have to find the entry manually
+            return VersionControl.GetBranchHistory([new ItemSpec(path, RecursionType.Full)], VersionSpec.Latest)
+                .SelectMany(b => b)
+                .SelectMany(Flatten)
+                .Select(b => (NewName: b.Relative.BranchToItem.ServerItem, OldName: b.Relative.BranchFromItem?.ServerItem))
+                // For some reason TFS sometimes returns two seemingly the same hierarchies so all items are duplicated
+                .Distinct()
+                .Single(b => string.Equals(b.NewName, path, StringComparison.OrdinalIgnoreCase))
+                .OldName;
+
+            static IEnumerable<BranchHistoryTreeItem> Flatten(BranchHistoryTreeItem branch)
+            {
+                yield return branch;
+
+                foreach (var childBranch in branch.Children.Cast<BranchHistoryTreeItem>().SelectMany(Flatten))
+                    yield return childBranch;
+            }
+        }
+
         public IEnumerable<string> GetAllTfsRootBranchesOrderedByCreation() => AllTfsBranchObjects
                 .Where(b => b.Properties.ParentBranch == null)
                 .Select(b => b.Properties.RootItem.Item);
