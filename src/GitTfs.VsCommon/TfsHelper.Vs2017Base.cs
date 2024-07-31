@@ -42,8 +42,6 @@ namespace GitTfs.VsUnknown
 
         private const string gitTfsPatEnvironmentVariableName = "GIT_TFS_PAT";
 
-        private readonly List<string> myAssemblySearchPaths;
-
         /// <summary>
         /// Caches the found VS installation path.
         /// </summary>
@@ -78,7 +76,6 @@ namespace GitTfs.VsUnknown
         {
             myVisualStudioInstallationPath = GetVsInstallDir();
 
-            myAssemblySearchPaths = new List<string>();
             if (!string.IsNullOrEmpty(myVisualStudioInstallationPath))
             {
                 // Calling LoadAssemblySearchPathFromVisualStudioPrivateRegistry would immediately
@@ -89,7 +86,7 @@ namespace GitTfs.VsUnknown
                     LoadAssemblySearchPathFromVisualStudioPrivateRegistry(devenvPath);
                 }
 
-                myAssemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, myPrivateAssembliesFolder));
+                _assemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, myPrivateAssembliesFolder));
             }
         }
 
@@ -115,13 +112,13 @@ namespace GitTfs.VsUnknown
                 Trace.WriteLine("CommonExtensionsPath :" + searchPath);
             }
 
-            myAssemblySearchPaths.AddRange(myExternalSettingsManager.GetCommonExtensionsSearchPaths());
+            _assemblySearchPaths.AddRange(myExternalSettingsManager.GetCommonExtensionsSearchPaths());
             string userExtensions = myExternalSettingsManager.GetApplicationDataFolder(ApplicationDataFolder.UserExtensions);
             if (!userExtensions.IsNullOrEmpty())
             {
-                myAssemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, userExtensions));
+                _assemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, userExtensions));
             }
-            myAssemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, myTeamExplorerFolder));
+            _assemblySearchPaths.Add(Path.Combine(myVisualStudioInstallationPath, myTeamExplorerFolder));
         }
 
         /// <summary>
@@ -183,17 +180,6 @@ namespace GitTfs.VsUnknown
             return myVisualStudioInstallationPath;
         }
 
-        protected override IBuildDetail GetSpecificBuildFromQueuedBuild(IQueuedBuild queuedBuild, string shelvesetName)
-        {
-            var build = queuedBuild.Builds.FirstOrDefault(b => b.ShelvesetName == shelvesetName);
-            return build != null ? build : queuedBuild.Build;
-        }
-
-#pragma warning disable 618
-        private IGroupSecurityService GroupSecurityService => GetService<IGroupSecurityService>();
-
-        public override IIdentity GetIdentity(string username) => _bridge.Wrap<WrapperForIdentity, Identity>(Retry.Do(() => GroupSecurityService.ReadIdentity(SearchFactor.AccountName, username, QueryMembership.None)));
-
         protected override TfsTeamProjectCollection GetTfsCredential(Uri uri)
         {
             VssCredentials vssCred = null;
@@ -223,26 +209,9 @@ namespace GitTfs.VsUnknown
             }
 
             return new TfsTeamProjectCollection(uri, vssCred);
-#pragma warning restore 618
         }
 
         protected override string GetDialogAssemblyPath() => Path.Combine(GetVsInstallDir(), myTeamExplorerFolder, DialogAssemblyName + ".dll");
-
-        protected override Assembly LoadFromVsFolder(object sender, ResolveEventArgs args)
-        {
-            Trace.WriteLine("Looking for assembly " + args.Name + " ...");
-            foreach (var dir in myAssemblySearchPaths)
-            {
-                string assemblyPath = Path.Combine(dir, new AssemblyName(args.Name).Name + ".dll");
-                if (File.Exists(assemblyPath))
-                {
-                    Trace.WriteLine("... loading " + args.Name + " from " + assemblyPath);
-                    return Assembly.LoadFrom(assemblyPath);
-                }
-            }
-
-            return null;
-        }
 
         private static ISetupConfiguration GetSetupConfiguration()
         {

@@ -15,6 +15,7 @@ using StructureMap.Attributes;
 using ChangeType = Microsoft.TeamFoundation.VersionControl.Client.ChangeType;
 using IdentityNotFoundException = Microsoft.TeamFoundation.VersionControl.Client.IdentityNotFoundException;
 using Microsoft.TeamFoundation.Build.Client;
+using Microsoft.TeamFoundation.Server;
 
 namespace GitTfs.VsCommon
 {
@@ -26,6 +27,7 @@ namespace GitTfs.VsCommon
         private static bool _resolverInstalled;
         private AuthorsFile _authorsFile;
         private Uri _lastAuthenticatedUri;
+        protected readonly List<string> _assemblySearchPaths = [];
 
         public TfsHelperBase(TfsApiBridge bridge, IContainer container)
         {
@@ -92,7 +94,11 @@ namespace GitTfs.VsCommon
 
         protected abstract TfsTeamProjectCollection GetTfsCredential(Uri uri);
 
-        public abstract IIdentity GetIdentity(string username);
+#pragma warning disable CS0618
+        private IGroupSecurityService GroupSecurityService => GetService<IGroupSecurityService>();
+#pragma warning restore CS0618
+
+        public IIdentity GetIdentity(string username) => _bridge.Wrap<WrapperForIdentity, Identity>(Retry.Do(() => GroupSecurityService.ReadIdentity(SearchFactor.AccountName, username, QueryMembership.None)));
 
         protected NetworkCredential GetCredential()
         {
@@ -1122,7 +1128,21 @@ namespace GitTfs.VsCommon
         /// <summary>
         /// Help the TFS client find checkin policy assemblies.
         /// </summary>
-        protected abstract Assembly LoadFromVsFolder(object sender, ResolveEventArgs args);
+        private Assembly LoadFromVsFolder(object sender, ResolveEventArgs args)
+        {
+            Trace.WriteLine("Looking for assembly " + args.Name + " ...");
+            foreach (var dir in _assemblySearchPaths)
+            {
+                string assemblyPath = Path.Combine(dir, new AssemblyName(args.Name).Name + ".dll");
+                if (File.Exists(assemblyPath))
+                {
+                    Trace.WriteLine("... loading " + args.Name + " from " + assemblyPath);
+                    return Assembly.LoadFrom(assemblyPath);
+                }
+            }
+
+            return null;
+        }
 
         protected string TryGetUserRegString(string path, string name) => TryGetRegString(Registry.CurrentUser, path, name);
 
@@ -1229,6 +1249,10 @@ namespace GitTfs.VsCommon
 
         public void DeleteShelveset(IWorkspace workspace, string shelvesetName) => VersionControl.DeleteShelveset(shelvesetName, workspace.OwnerName);
 
-        protected virtual IBuildDetail GetSpecificBuildFromQueuedBuild(IQueuedBuild queuedBuild, string shelvesetName) => queuedBuild.Build;
+        private IBuildDetail GetSpecificBuildFromQueuedBuild(IQueuedBuild queuedBuild, string shelvesetName)
+        {
+            var build = queuedBuild.Builds.FirstOrDefault(b => b.ShelvesetName == shelvesetName);
+            return build != null ? build : queuedBuild.Build;
+        }
     }
 }

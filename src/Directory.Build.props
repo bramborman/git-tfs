@@ -25,6 +25,7 @@
     <!-- GitTfs.VsXxxx project detection and configuration -->
     <IsGitTfsVsInteropProject>$(MSBuildProjectName.StartsWith('GitTfs.Vs'))</IsGitTfsVsInteropProject>
     <GitTfsVsInteropVersion Condition="$(IsGitTfsVsInteropProject)">$(MSBuildProjectName.Substring(9))</GitTfsVsInteropVersion>
+    <DefineConstants>$(DefineConstants);GITTFS_VS_INTEROP_VERSION_$(GitTfsVsInteropVersion)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="$(IsGitTfsVsInteropProject)">

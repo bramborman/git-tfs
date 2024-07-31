@@ -20,7 +20,9 @@ namespace GitTfs.Vs2015
 
         public TfsHelper(TfsApiBridge bridge, IContainer container)
             : base(bridge, container)
-        { }
+        {
+            _assemblySearchPaths.Add(Path.Combine(GetVsInstallDir(), "PrivateAssemblies"));
+        }
 
         protected override string GetDialogAssemblyPath()
         {
@@ -45,33 +47,10 @@ namespace GitTfs.Vs2015
             return vsInstallDir;
         }
 
-        protected override IBuildDetail GetSpecificBuildFromQueuedBuild(IQueuedBuild queuedBuild, string shelvesetName)
-        {
-            var build = queuedBuild.Builds.FirstOrDefault(b => b.ShelvesetName == shelvesetName);
-            return build != null ? build : queuedBuild.Build;
-        }
-
 #pragma warning disable 618
-        private IGroupSecurityService GroupSecurityService => GetService<IGroupSecurityService>();
-
-        public override IIdentity GetIdentity(string username) => _bridge.Wrap<WrapperForIdentity, Identity>(Retry.Do(() => GroupSecurityService.ReadIdentity(SearchFactor.AccountName, username, QueryMembership.None)));
-
         protected override TfsTeamProjectCollection GetTfsCredential(Uri uri) => HasCredentials ?
                 new TfsTeamProjectCollection(uri, GetCredential(), new UICredentialsProvider()) :
                 new TfsTeamProjectCollection(uri, new UICredentialsProvider());
 #pragma warning restore 618
-
-
-        protected override Assembly LoadFromVsFolder(object sender, ResolveEventArgs args)
-        {
-            Trace.WriteLine("Looking for assembly " + args.Name + " ...");
-            string folderPath = Path.Combine(GetVsInstallDir(), "PrivateAssemblies");
-            string assemblyPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
-            if (File.Exists(assemblyPath) == false)
-                return null;
-            Trace.WriteLine("... loading " + args.Name + " from " + assemblyPath);
-            Assembly assembly = Assembly.LoadFrom(assemblyPath);
-            return assembly;
-        }
     }
 }
