@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>GitTfs.Test</RootNamespace>
@@ -48,7 +48,5 @@
     <EmbeddedResource Include="Fixtures\vtccds\fd30d6210bb40fd2c9b689f0bf8b2833" />
     <EmbeddedResource Include="Integration\GlobalConfigs\mainDefaultBranch.gitconfig" />
     <EmbeddedResource Include="Integration\GlobalConfigs\standard.gitconfig" />
-    <None Include="paket.references" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

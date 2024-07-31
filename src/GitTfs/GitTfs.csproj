@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -24,10 +24,8 @@
     <None Include="App.config" />
     <None Include="app.manifest" />
     <None Include="Core\TfsInterop\README.txt" />
-    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NDesk.Options\NDesk.Options.csproj" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

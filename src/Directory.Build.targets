@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory).paket/Paket.Restore.targets" Condition="Exists('$(MSBuildProjectDirectory)/paket.references')" />
+</Project>
