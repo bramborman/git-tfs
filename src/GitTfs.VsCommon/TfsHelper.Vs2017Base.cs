@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 using GitTfs.Core.TfsInterop;
+using GitTfs.VsCommon;
 
 using Microsoft.TeamFoundation.Build.Client;
 using Microsoft.TeamFoundation.Client;
@@ -17,12 +18,21 @@ using StructureMap;
 
 using WindowsCredential = Microsoft.VisualStudio.Services.Common.WindowsCredential;
 
-namespace GitTfs.VsCommon
+#if GITTFS_VS_INTEROP_VERSION_2017
+namespace GitTfs.Vs2017
+#elif GITTFS_VS_INTEROP_VERSION_2019
+namespace GitTfs.Vs2019
+#elif GITTFS_VS_INTEROP_VERSION_2022
+namespace GitTfs.Vs2022
+#else
+namespace GitTfs.VsUnknown
+#error Unknown VS Interop Version
+#endif
 {
     /// <summary>
     /// Base class for TfsHelper targeting VS versions greater or equal to VS2017.
     /// </summary>
-    public abstract class TfsHelperVS2017Base : TfsHelperBase
+    public sealed class TfsHelperVS2017Base : TfsHelperBase
     {
         private const string myPrivateAssembliesFolder =
             @"Common7\IDE\PrivateAssemblies";
@@ -41,7 +51,16 @@ namespace GitTfs.VsCommon
 
         private const int REGDB_E_CLASSNOTREG = unchecked((int)0x80040154);
 
-        private readonly int myMajorVersion;
+#if GITTFS_VS_INTEROP_VERSION_2017
+        private const int myMajorVersion = 15;
+#elif GITTFS_VS_INTEROP_VERSION_2019
+        private const int myMajorVersion = 16;
+#elif GITTFS_VS_INTEROP_VERSION_2022
+        private const int myMajorVersion = 17;
+#else
+        private const int myMajorVersion = -1;
+#error Unknown VS Interop Version
+#endif
 
         /// <summary>
         /// Loading the ExternalSettingsManager and then GetReadOnlySettingsStore ensures
@@ -54,10 +73,9 @@ namespace GitTfs.VsCommon
         /// </summary>
         private ExternalSettingsManager myExternalSettingsManager;
 
-        public TfsHelperVS2017Base(TfsApiBridge bridge, IContainer container, int majorVersion)
+        public TfsHelperVS2017Base(TfsApiBridge bridge, IContainer container)
             : base(bridge, container)
         {
-            myMajorVersion = majorVersion;
             myVisualStudioInstallationPath = GetVsInstallDir();
 
             myAssemblySearchPaths = new List<string>();
