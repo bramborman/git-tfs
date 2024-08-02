@@ -45,7 +45,7 @@ namespace GitTfs.Core
             switch (change.Type)
             {
                 case ChangeType.Update:
-                    Update(change, treeBuilder, workspace, initialTree);
+                    Update(change, treeBuilder, workspace);
                     break;
                 case ChangeType.Delete:
                     Delete(change.GitPath, treeBuilder, initialTree);
@@ -58,7 +58,7 @@ namespace GitTfs.Core
             }
         }
 
-        private void Update(ApplicableChange change, IGitTreeModifier treeBuilder, ITfsWorkspace workspace, IDictionary<string, GitObject> initialTree)
+        private void Update(ApplicableChange change, IGitTreeModifier treeBuilder, ITfsWorkspace workspace)
         {
             var localPath = workspace.GetLocalPath(change.GitPath);
             if (File.Exists(localPath))
@@ -75,9 +75,7 @@ namespace GitTfs.Core
 
         public IEnumerable<TfsTreeEntry> GetTree() => GetFullTree().Where(item => item.Item.ItemType == TfsItemType.File && !Summary.Remote.ShouldSkip(item.FullName));
 
-        public bool IsMergeChangeset => _changeset == null || _changeset.Changes == null || !_changeset.Changes.Any()
-                    ? false
-                    : _changeset.Changes.Any(c => c.ChangeType.IncludesOneOf(TfsChangeType.Merge));
+        public bool IsMergeChangeset => _changeset?.Changes?.Any(c => c.ChangeType.IncludesOneOf(TfsChangeType.Merge)) == true;
 
         private bool? _isRenameChangeset;
         /// <summary>

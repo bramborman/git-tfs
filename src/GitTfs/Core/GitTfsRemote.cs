@@ -206,7 +206,7 @@ namespace GitTfs.Core
                     }
 
                     //find the relative path to the owning remote
-                    return Ext.CombinePaths(_globals.GitDir, WorkspaceDirectory, OwningRemoteId, Prefix);
+                    return Path.Combine(_globals.GitDir, WorkspaceDirectory, OwningRemoteId, Prefix);
                 }
 
                 return dir ?? DefaultWorkingDirectory;
@@ -307,7 +307,6 @@ namespace GitTfs.Core
             public bool IsSuccess { get; set; }
             public int LastFetchedChangesetId { get; set; }
             public int NewChangesetCount { get; set; }
-            public string ParentBranchTfsPath { get; set; }
             public bool IsProcessingRenameChangeset { get; set; }
             public string LastParentCommitBeforeRename { get; set; }
         }
@@ -342,8 +341,8 @@ namespace GitTfs.Core
                     fetchResult.NewChangesetCount++;
                     if (lastChangesetIdToFetch > 0 && changeset.Summary.ChangesetId > lastChangesetIdToFetch)
                         return fetchResult;
-                    string parentCommitSha = null;
-                    if (changeset.IsMergeChangeset && !ProcessMergeChangeset(changeset, stopOnFailMergeCommit, ref parentCommitSha))
+                    string additionalParentSha = null;
+                    if (changeset.IsMergeChangeset && !ProcessMergeChangeset(changeset, stopOnFailMergeCommit, ref additionalParentSha))
                     {
                         fetchResult.NewChangesetCount--; // Merge wasn't successful - so don't count the changeset we found
                         fetchResult.IsSuccess = false;
@@ -371,8 +370,8 @@ namespace GitTfs.Core
                         renameResult.IsProcessingRenameChangeset = false;
                         renameResult.LastParentCommitBeforeRename = null;
                     }
-                    if (parentCommitSha != null)
-                        log.CommitParents.Add(parentCommitSha);
+                    if (additionalParentSha != null)
+                        log.CommitParents.Add(additionalParentSha);
                     if (changeset.Summary.ChangesetId == mergeChangesetId)
                     {
                         foreach (var parent in parentCommitsHashes)
@@ -755,7 +754,7 @@ namespace GitTfs.Core
                     changeset = GetLatestChangeset();
                 else
                     changeset = Tfs.GetChangeset(changesetId, this);
-                quickFetch(changeset);
+                QuickFetch(changeset);
                 return new FetchResult()
                 {
                     IsSuccess = true,
@@ -776,7 +775,7 @@ namespace GitTfs.Core
             }
         }
 
-        private void quickFetch(ITfsChangeset changeset)
+        private void QuickFetch(ITfsChangeset changeset)
         {
             var parentSha = MaxCommitHash;
             parentSha ??= CommitTheGitIgnoreFile();
@@ -1017,7 +1016,7 @@ namespace GitTfs.Core
 
         public void DeleteShelveset(string shelvesetName) => WithWorkspace(null, workspace => workspace.DeleteShelveset(shelvesetName));
 
-        private bool MatchesTfsUrl(string tfsUrl) => TfsUrl.Equals(tfsUrl, StringComparison.OrdinalIgnoreCase) || Aliases.Contains(tfsUrl, StringComparison.OrdinalIgnoreCase);
+        private bool MatchesTfsUrl(string tfsUrl) => TfsUrl.Equals(tfsUrl, StringComparison.OrdinalIgnoreCase) || Aliases.Contains(tfsUrl, StringComparer.OrdinalIgnoreCase);
 
         private string ExtractGitBranchNameFromTfsRepositoryPath(string tfsRepositoryPath)
         {
