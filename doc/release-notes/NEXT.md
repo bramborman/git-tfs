@@ -3,5 +3,6 @@
 * chore: Update libgit2sharp to v0.30 ( #1492 by @pmiossec )
 * Fix handling of renamed branches for clone/fetch ( #1493 by @dh2i-sam )
 * Fix handling of renamed branches for clone/fetch in additional cases ( #1514 by @bramborman )
+* Fix cases where branches weren't updated to latest changesets on init ( #1516 by @bramborman )
 * Better handle and propagate fetch errors ( #1517 by @bramborman )
 * Fix parent-less branches missing .gitignore ( #1518 by @bramborman )
