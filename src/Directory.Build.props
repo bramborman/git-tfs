@@ -1,12 +1,11 @@
 <Project>
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PlatformTarget>AnyCPU</PlatformTarget>
 
     <LangVersion>12</LangVersion>
-    <NoWarn>$(NoWarn);1573;1591;1712;NU1903</NoWarn>
+    <NoWarn>$(NoWarn);CS1573;CS1591;CS1712;NU1903</NoWarn>
     <!-- <TreatWarningsAsErrors>true</TreatWarningsAsErrors> -->
     <!-- <Nullable>enable</Nullable> -->
 

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs">
@@ -23,9 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GitTfs\GitTfs.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
       <ItemGroup>
     <Reference Include="System.Windows.Forms" />
