@@ -21,5 +21,24 @@
     <!-- Opt in to build acceleration in VS (from 17.5 onwards): https://github.com/dotnet/project-system/blob/main/docs/build-acceleration.md -->
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <!-- GitTfs.VsXxxx project detection and configuration -->
+    <IsGitTfsVsInteropProject>$(MSBuildProjectName.StartsWith('GitTfs.Vs'))</IsGitTfsVsInteropProject>
+    <GitTfsVsInteropVersion Condition="$(IsGitTfsVsInteropProject)">$(MSBuildProjectName.Substring(9))</GitTfsVsInteropVersion>
   </PropertyGroup>
+
+  <ItemGroup Condition="$(IsGitTfsVsInteropProject)">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)GitTfs/GitTfs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsGitTfsVsInteropProject) And '$(GitTfsVsInteropVersion)' != 'Fake'">
+    <Reference Include="System.Windows.Forms" />
+
+    <Compile Include="../GitTfs.VsCommon/ParentForm.cs" SubType="Form" />
+    <Compile Include="$(MSBuildThisFileDirectory)GitTfs.VsCommon/Retry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GitTfs.VsCommon/TfsHelper.Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GitTfs.VsCommon/TfsHelper.VS2017Base.cs" Condition="'$(GitTfsVsInteropVersion)' != '2015'" />
+    <Compile Include="$(MSBuildThisFileDirectory)GitTfs.VsCommon/TfsPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GitTfs.VsCommon/Wrappers.cs" />
+  </ItemGroup>
 </Project>

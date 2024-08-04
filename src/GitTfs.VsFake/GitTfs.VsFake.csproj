@@ -4,9 +4,6 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GitTfs\GitTfs.csproj" />
-  </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /y /I &quot;$(TargetPath)&quot; &quot;$(SolutionDir)GitTfs\$(OutDir)*&quot;" />
   </Target>
