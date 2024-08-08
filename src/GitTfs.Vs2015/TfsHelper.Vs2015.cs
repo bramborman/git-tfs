@@ -26,13 +26,8 @@ namespace GitTfs.Vs2015
 
         protected override string GetDialogAssemblyPath()
         {
-#if NETFRAMEWORK
             var tfsExtensionsFolder = TryGetUserRegStringStartingWithName(@"Software\Microsoft\VisualStudio\14.0\ExtensionManager\EnabledExtensions", "Microsoft.VisualStudio.TeamFoundation.TeamExplorer.Extensions");
             return Path.Combine(tfsExtensionsFolder, DialogAssemblyName + ".dll");
-#else
-            Trace.TraceWarning("Checkin dialog is not supported with dotnet core version of git-tfs");
-            return string.Empty;
-#endif
         }
 
         private string GetVsInstallDir()
@@ -47,10 +42,10 @@ namespace GitTfs.Vs2015
             return vsInstallDir;
         }
 
-#pragma warning disable 618
         protected override TfsTeamProjectCollection GetTfsCredential(Uri uri) => HasCredentials ?
+#pragma warning disable CS0618
                 new TfsTeamProjectCollection(uri, GetCredential(), new UICredentialsProvider()) :
                 new TfsTeamProjectCollection(uri, new UICredentialsProvider());
-#pragma warning restore 618
+#pragma warning restore CS0618
     }
 }

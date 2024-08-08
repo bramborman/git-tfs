@@ -131,7 +131,7 @@ namespace GitTfs.VsUnknown
         /// Path to the top level directory of the Visual studio installation directory,
         /// e.g. <c>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise</c>
         /// </returns>
-        protected string GetVsInstallDir()
+        private string GetVsInstallDir()
         {
             if (myVisualStudioInstallationPath != null)
                 return myVisualStudioInstallationPath;
@@ -196,8 +196,7 @@ namespace GitTfs.VsUnknown
 
                 Trace.WriteLine("PAT-based VSS Credentials created.");
             }
-
-            if (vssCred == null)
+            else
             {
                 Trace.WriteLine("Establishing TFS credentials using user identity...");
 
