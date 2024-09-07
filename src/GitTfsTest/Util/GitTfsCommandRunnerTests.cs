@@ -2,7 +2,7 @@
 using GitTfs.Util;
 using Moq;
 using StructureMap.AutoMocking;
-using NDesk.Options;
+using Mono.Options;
 using Xunit;
 
 namespace GitTfs.Test.Util

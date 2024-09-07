@@ -1,4 +1,4 @@
-﻿using NDesk.Options;
+﻿using Mono.Options;
 
 namespace GitTfs.Commands
 {

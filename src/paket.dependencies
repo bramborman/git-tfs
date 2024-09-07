@@ -10,6 +10,7 @@ source https://api.nuget.org/v3/index.json
 
 nuget nlog
 nuget LibGit2Sharp
+nuget Mono.Options
 nuget Moq
 nuget structuremap 2.6.4.1
 nuget StructureMap.AutoMocking 2.6.4.1

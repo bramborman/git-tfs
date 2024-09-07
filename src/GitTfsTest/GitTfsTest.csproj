@@ -12,7 +12,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NDesk.Options\NDesk.Options.csproj" />
     <ProjectReference Include="..\GitTfs.VsFake\GitTfs.VsFake.csproj" />
     <ProjectReference Include="..\GitTfs\GitTfs.csproj" />
   </ItemGroup>

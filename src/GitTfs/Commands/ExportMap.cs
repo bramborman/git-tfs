@@ -2,7 +2,7 @@
 
 using GitTfs.Core;
 
-using NDesk.Options;
+using Mono.Options;
 
 using StructureMap;
 

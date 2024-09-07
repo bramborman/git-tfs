@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using NDesk.Options;
+using Mono.Options;
 using GitTfs.Core;
 using StructureMap;
 using GitTfs.Util;
