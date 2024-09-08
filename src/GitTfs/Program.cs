@@ -20,6 +20,27 @@ namespace GitTfs
         [STAThread]
         public static void Main(string[] args)
         {
+#if DEBUG
+            if (!Debugger.IsAttached)
+            {
+                Console.Write("Waiting for debugger to be attached . . .");
+
+                while (!Debugger.IsAttached)
+                {
+                    Thread.Sleep(1000);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Debugger attached, breaking before continuing normal execution . . .");
+                //Debugger.Break();
+            }
+
+            var guid = Guid.NewGuid().ToString();
+            for (int i = 0; i < args.Length; i++)
+            {
+                args[i] = args[i].Replace("{VAR}", guid);
+            }
+#endif
             try
             {
                 Environment.ExitCode = MainCore(args);
