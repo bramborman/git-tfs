@@ -1012,10 +1012,31 @@ namespace GitTfs.VsCommon
 
         private static WorkItemCheckedInfo GetWorkItemCheckedInfo(string workitem, WorkItemCheckinAction checkinAction) => new WorkItemCheckedInfo(Convert.ToInt32(workitem), true, checkinAction);
 
+        private sealed class Progress
+        {
+            private static readonly char[] States = { '|', '/', '-', '\\' };
+
+            private int index = 0;
+            private DateTime lastUpdated = DateTime.MinValue;
+
+            public char Next()
+            {
+                if ((DateTime.Now - lastUpdated).TotalSeconds >= 1)
+                {
+                    index = (index == States.Length - 1 ? 0 : index + 1);
+                }
+
+                return States[index];
+            }
+        }
+
         public IEnumerable<TfsLabel> GetLabels(string tfsPathBranch, string nameFilter = null)
         {
+            var progress = new Progress();
+            Console.Write("Working (#)\b");
             foreach (var labelDefinition in VersionControl.QueryLabels(nameFilter, tfsPathBranch, null, false, null, VersionSpec.Latest))
             {
+                Console.Write($"\b{progress.Next()}");
                 var label = VersionControl.QueryLabels(labelDefinition.Name, tfsPathBranch, null, true, null, VersionSpec.Latest).FirstOrDefault();
                 if (label == null)
                 {
@@ -1033,6 +1054,7 @@ namespace GitTfs.VsCommon
                 var foundRelevantItems = false;
                 foreach (var item in label.Items)
                 {
+                    Console.Write($"\b{progress.Next()}");
                     if (item.ServerItem.StartsWith(tfsPathBranch, StringComparison.OrdinalIgnoreCase))
                     {
                         foundRelevantItems = true;
