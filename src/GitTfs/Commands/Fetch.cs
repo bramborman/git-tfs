@@ -49,7 +49,7 @@ namespace GitTfs.Commands
             }
         }
 
-        private int upToChangeSet { get; set; }
+        public int upToChangeSet { get; set; }
         public string UpToChangeSetOption
         {
             set
@@ -93,9 +93,9 @@ namespace GitTfs.Commands
                         } },
                     { "batch-size=", "Size of the batch of tfs changesets fetched (-1 for all in one batch)",
                         v => BatchSizeOption = v },
-                    { "c|changeset|from=", "The changeset to clone from (must be a number)",
+                    { "c|changeset|from=", "The changeset to clone from (inclusive, must be a number, not prefixed with 'C')",
                         v => InitialChangeset = Convert.ToInt32(v) },
-                    { "t|up-to|to=", "up-to changeset # (optional, -1 for up to maximum, must be a number, not prefixed with 'C')",
+                    { "t|up-to|to=", "The changeset to clone up-to (exclusive, must be a number, not prefixed with 'C', -1 for unlimited)",
                         v => UpToChangeSetOption = v },
                     { "ignore-branches-regex=", "Don't initialize branches that match given regex",
                         v => IgnoreBranchesRegex = v  },

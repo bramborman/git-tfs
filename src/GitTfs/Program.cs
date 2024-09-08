@@ -29,6 +29,10 @@ namespace GitTfs
                 ReportException(e);
                 Environment.ExitCode = GitTfsExitCodes.ExceptionThrown;
             }
+
+#if DEBUG
+            Console.ReadLine();
+#endif
         }
 
         public static int MainCore(string[] args)

@@ -360,7 +360,12 @@ namespace GitTfs.Commands
                 if (level > 0)
                     writer.Write(" +-");
 
-                writer.Write(" {0}", branch.Path);
+                writer.Write($" {branch.Path}");
+                if (branch.DeletedInChangesetId != null)
+                    writer.Write($" [deleted in C{branch.DeletedInChangesetId}]");
+
+                if (branch.Path.Equals(_targetPath))
+                    writer.Write(" [*]");
 
                 if (_tfsRemotes != null)
                 {
@@ -368,9 +373,6 @@ namespace GitTfs.Commands
                     if (remote != null)
                         writer.Write(" -> " + remote.Id);
                 }
-
-                if (branch.Path.Equals(_targetPath))
-                    writer.Write(" [*]");
 
                 Trace.TraceInformation(writer.ToString());
             }

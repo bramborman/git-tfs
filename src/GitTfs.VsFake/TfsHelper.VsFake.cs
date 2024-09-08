@@ -262,7 +262,7 @@ namespace GitTfs.VsFake
         {
         }
 
-        public bool IsExistingInTfs(string path)
+        public bool IsExistingInTfs(string path, int changesetId)
         {
             var exists = false;
             foreach (var changeset in _script.Changesets)

@@ -30,7 +30,10 @@ namespace GitTfs.Commands
             _tfsHelper.EnsureAuthenticated();
 
             string convertBranchMessage = "  -> Open 'Source Control Explorer' and for each folder corresponding to a branch, right click on the folder and select 'Branching and Merging' > 'Convert to branch'.";
-            var branches = _tfsHelper.GetBranches().Where(b => b.IsRoot).ToList();
+            var branches = _tfsHelper.GetBranches(true)
+                .Where(b => b.IsRoot)
+                .OrderBy(b => b.Path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
             if (branches.IsEmpty())
             {
                 Trace.TraceWarning("No TFS branches were found!");
@@ -40,7 +43,7 @@ namespace GitTfs.Commands
             else
             {
                 Trace.TraceInformation("TFS branches that could be cloned:");
-                foreach (var branchObject in branches.Where(b => b.IsRoot))
+                foreach (var branchObject in branches)
                 {
                     Branch.WriteRemoteTfsBranchStructure(_tfsHelper, branchObject.Path);
                 }

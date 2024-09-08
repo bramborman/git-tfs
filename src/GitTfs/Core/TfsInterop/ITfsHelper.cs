@@ -32,7 +32,7 @@ namespace GitTfs.Core.TfsInterop
         void EnsureAuthenticated();
         void CreateBranch(string sourcePath, string targetPath, int changesetId, string comment = null);
         void CreateTfsRootBranch(string projectName, string mainBranch, string gitRepositoryPath, bool createTeamProjectFolder);
-        bool IsExistingInTfs(string path);
+        bool IsExistingInTfs(string path, int changesetId);
         int FindMergeChangesetParent(string path, int firstChangeset, GitTfsRemote remote);
         /// <summary>
         /// Creates and maps a workspace for the given remote with the given local -> server directory mappings, at the given Tfs version,

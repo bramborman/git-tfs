@@ -36,6 +36,7 @@ namespace GitTfs.Core.TfsInterop
         public string Path => Branch.Path;
         public string ParentPath => Branch.ParentPath;
         public bool IsRoot => Branch.IsRoot;
+        public int? DeletedInChangesetId { get; }
 
         public override string ToString() => $"{Path} [{ChildBranches.Count} children]";
     }

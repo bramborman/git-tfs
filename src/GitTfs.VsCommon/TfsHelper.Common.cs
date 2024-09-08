@@ -1115,9 +1115,11 @@ namespace GitTfs.VsCommon
             }
         }
 
-        public bool IsExistingInTfs(string path) => VersionControl.ServerItemExists(path, VersionSpec.Latest, DeletedState.Any, ItemType.Any);
+        public bool IsExistingInTfs(string path, int changesetId)
+            => VersionControl.ServerItemExists(path, changesetId == -1 ? VersionSpec.Latest : new ChangesetVersionSpec(changesetId), DeletedState.Any, ItemType.Any);
 
-        protected void ConvertFolderIntoBranch(string tfsRepositoryPath) => VersionControl.CreateBranchObject(new BranchProperties(new ItemIdentifier(tfsRepositoryPath)));
+        protected void ConvertFolderIntoBranch(string tfsRepositoryPath)
+            => VersionControl.CreateBranchObject(new BranchProperties(new ItemIdentifier(tfsRepositoryPath)));
 
         /// <summary>
         /// Help the TFS client find checkin policy assemblies.
